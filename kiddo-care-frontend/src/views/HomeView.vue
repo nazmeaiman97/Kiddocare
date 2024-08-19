@@ -1,14 +1,22 @@
 <template>
-  <el-steps style="max-width: 600px" :active="active" finish-status="success">
+  <el-steps :active="active" finish-status="success">
     <el-step title="Reservation" />
     <el-step title="Confirmation" />
   </el-steps>
-  <div>
-    <ReservationForm v-model="form" @submit="handleSubmit"></ReservationForm>
-    <ConfirmationView></ConfirmationView>
-  </div>
+  <div class="flex flex-row justify-center">
+    <div v-if="active == 0" class="flex">
 
-  <el-button style="margin-top: 12px" @click="next">Next step</el-button>
+      <ReservationForm v-model="form" @submit="nextPage"></ReservationForm>
+    </div>
+    <div v-if="active == 1">
+      <ConfirmationView :customerName="form.customerName" :customerAddress="form.customerAddress"
+        :startTime="form.startTime" :duration="form.duration" :childrens="form.childrens" />
+      <div class="mt-10">
+        <el-button type="primary" @click="reservationAPI"> Submit</el-button>
+        <el-button @click="active--">Back </el-button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -16,28 +24,55 @@ import { ref } from 'vue'
 import ReservationForm from '../components/partials/ReservationForm.vue'
 import ConfirmationView from '../components/partials/ConfirmationView.vue'
 import type { RuleForm } from '../components/partials/ReservationForm.vue'
+import instance from '../axios/axiosInterceptor';
+import { useRouter } from 'vue-router'
 
+
+const router = useRouter();
+const active = ref(0);
 const form = ref<RuleForm>({
-  customerName: null,
+  customerName: '',
+  customerAddress: '',
   startDate: null,
   startTime: null,
-  durations: null,
+  duration: 1,
   childrens: [
     {
       name: null,
-      address: null,
       birthdate: null
     }
   ]
 })
 
-const handleSubmit = (formData: RuleForm) => {
-  if (active.value++ > 2) active.value = 0
+const nextPage = () => {
+  active.value++;
 }
 
-const active = ref(0)
 
-const next = () => {
-  if (active.value++ > 2) active.value = 0
+const convertHoursToMinutes = (hours: number): number => {
+  return hours * 60;
+};
+
+const reservationAPI = () => {
+  return instance.post('/reservations', {
+    'customer_name': form.value.customerName,
+    'customer_address': form.value.customerAddress,
+    'start_time': form.value.startTime,
+    'duration_minutes': convertHoursToMinutes(form.value.duration),
+    'children': form.value.childrens.map((child) => ({
+      name: child.name,
+      birthdate: child.birthdate,
+    }))
+  }).then((res) => {
+    console.log(res); // can see the reservaton data heredata here;
+    router.replace({ name: 'result' });
+  }).catch((err) => {
+    active.value--;
+    console.error(err);
+  });
 }
+
+
+
+
 </script>

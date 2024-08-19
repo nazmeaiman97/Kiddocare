@@ -8,9 +8,14 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ConfirmationView: typeof import('./src/components/partials/ConfirmationView.vue')['default']
+    CustomerDetails: typeof import('./src/components/CustomerDetails.vue')['default']
     DatePicker: typeof import('./src/components/DatePicker.vue')['default']
+    DetailCard: typeof import('./src/components/DetailCard.vue')['default']
+    DetailItem: typeof import('./src/components/DetailItem.vue')['default']
+    DetailsCard: typeof import('./src/components/DetailsCard.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']
+    ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElDatePicker: typeof import('element-plus/es')['ElDatePicker']
     ElDivider: typeof import('element-plus/es')['ElDivider']
     ElForm: typeof import('element-plus/es')['ElForm']
@@ -22,6 +27,7 @@ declare module 'vue' {
     ElSteps: typeof import('element-plus/es')['ElSteps']
     ElText: typeof import('element-plus/es')['ElText']
     ElTimePicker: typeof import('element-plus/es')['ElTimePicker']
+    ErrorBox: typeof import('./src/components/ErrorBox.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
