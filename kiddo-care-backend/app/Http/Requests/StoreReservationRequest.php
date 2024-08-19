@@ -29,9 +29,16 @@ class StoreReservationRequest extends FormRequest
             'duration_minutes' => 'required|integer|min:60|max:1440',
             'children' => 'required|array|max:4',
             'children.*.name' => 'required|string',
-            'children.*.birthdate' => 'required|date|after_or_equal:' . Carbon::now()->subMonths(12)->toDateString() . '|before_or_equal:' . Carbon::now()->subMonths(1)->toDateString(),
+            'children.*.birthdate' => [
+                'required',
+                'date',
+                'before_or_equal:' . Carbon::now()->subMonths(1)->toDateString(), // more than 1 month or equal
+                'after_or_equal:' . Carbon::now()->subYears(12)->subMonths(11)->toDateString(), // Less than 12 years old
+            ],
+
         ];
     }
+
 
     /**
      * Get custom validation messages for the request.
@@ -40,7 +47,7 @@ class StoreReservationRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
+        $messages = [
             'start_time.required' => 'The reserve time is required.',
             'start_time.after_or_equal' => 'The reserve time must be at least 6 hours from now.',
             'start_time.before_or_equal' => 'The reserve time must be no more than 30 days from now.',
@@ -48,12 +55,19 @@ class StoreReservationRequest extends FormRequest
             'duration_minutes.max' => 'The duration cannot exceed 1440 minutes (24 hours).',
             'children.required' => 'At least one child is required.',
             'children.max' => 'You can only add up to 4 children.',
-            'children.*.name.required' => 'Each child must have a name.',
-            'children.*.name.string' => 'The name of each child must be a valid string.',
-            'children.*.birthdate.required' => 'Each child must have a birthdate.',
-            'children.*.birthdate.date' => 'Each child’s birthdate must be a valid date.',
-            'children.*.birthdate.after_or_equal' => 'Each child’s birthdate must be at least 12 months ago.',
-            'children.*.birthdate.before_or_equal' => 'Each child’s birthdate must be no more than 1 month ago.',
         ];
+
+        // Dynamically add messages for each child based on the count in the request
+        $childrenCount = count($this->input('children', []));
+        for ($index = 0; $index < $childrenCount; $index++) {
+            $messages["children.$index.name.required"] = "Child " . ($index + 1) . " must have a name.";
+            $messages["children.$index.name.string"] = "The name of child " . ($index + 1) . " must be a valid string.";
+            $messages["children.$index.birthdate.required"] = "Child " . ($index + 1) . " must have a birthdate.";
+            $messages["children.$index.birthdate.date"] = "The birthdate of child " . ($index + 1) . " must be a valid date.";
+            $messages["children.$index.birthdate.before_or_equal"] = "The birthdate of child " . ($index + 1) . "must be atleast a month";
+            $messages["children.$index.birthdate.after_or_equal"] = "The age of child " . ($index + 1) . " must be below 13";
+        }
+
+        return $messages;
     }
 }

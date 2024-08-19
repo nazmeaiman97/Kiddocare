@@ -26,6 +26,7 @@ import ConfirmationView from '../components/partials/ConfirmationView.vue'
 import type { RuleForm } from '../components/partials/ReservationForm.vue'
 import instance from '../axios/axiosInterceptor';
 import { useRouter } from 'vue-router'
+import dayjs from 'dayjs'
 
 
 const router = useRouter();
@@ -61,7 +62,7 @@ const reservationAPI = () => {
     'duration_minutes': convertHoursToMinutes(form.value.duration),
     'children': form.value.childrens.map((child) => ({
       name: child.name,
-      birthdate: child.birthdate,
+      birthdate: dayjs(child.birthdate).format('YYYY-MM-DD'),
     }))
   }).then((res) => {
     console.log(res); // can see the reservaton data heredata here;
